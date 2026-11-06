@@ -43,6 +43,7 @@ keeps ARMHF libraries as harvested. See
 | `/mnt/system` | Temporary read-only TF1 mount for configuration and update discovery when needed |
 | `/run`, `/tmp`, `/var`, `/dev/shm` | tmpfs runtime state |
 | `/mnt/vendor` | Compatibility files shipped in the rootfs; no vendor partition mounted here |
+| `/usr/lib/baseos-gnu/bin` | GNU tools from stock for PortMaster ports. First on the frontend's PATH; BaseOS scripts keep BusyBox in `/usr/bin` |
 
 The root filesystem stays mounted read-only on non-initramfs boots; writable
 runtime state lives on tmpfs and `/data`. If `/sys/fs/ext4/mmcblk0p5/errors_count`
