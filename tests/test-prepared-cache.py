@@ -24,7 +24,7 @@ class PreparedCacheTests(unittest.TestCase):
         self.prepared = self.root / "manifest/prepared"
         self.prepared.mkdir(parents=True)
         (self.root / "tools").mkdir()
-        for filename in ("cache-pack.sh", "fetch-prepared.sh"):
+        for filename in ("cache-pack.sh", "fetch-prepared.sh", "REPO"):
             shutil.copy2(REPO / filename, self.root / filename)
         for filename in (
             "device_profile.py", "docker-platform.sh", "prepare_stock.py",
