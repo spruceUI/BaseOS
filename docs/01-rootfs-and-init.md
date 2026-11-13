@@ -27,8 +27,8 @@ restore.
 
 The rootfs build checks the AArch64 dependency closure and the ARMHF
 loader/libc that `rtk_hciattach` requires. Other ARMHF applications still need
-their own compatibility validation. Shipping `libudev` does not provide a udev
-daemon. The build strips debug data from the GPU module with ABI checks, and
+their own compatibility validation.
+The build strips debug data from the GPU module with ABI checks, and
 keeps ARMHF libraries as harvested. See
 [boot performance](09-boot-profiling.md).
 
@@ -140,8 +140,11 @@ getty. It invokes `rcK` on shutdown.
 8. Start SSH/SFTP and USB adb through `/etc/init.d/dev` in the background after
    a 2 s delay so they do not contend with the frontend's first frame.
 
-Services that need a network do not block frontend startup. There is no udev
-or mdev; devtmpfs provides device nodes. Bluetooth starts D-Bus on demand.
+Services requiring a network do not block frontend startup. devtmpfs provides
+device nodes. udevd runs with input rules only: it labels input devices for SDL
+(the 32-bit SDL2 finds no gamepad without that) and announces devices that
+appear later, such as gptokeyb's virtual keyboard. It loads no drivers and has
+no hardware database. Bluetooth starts D-Bus on demand.
 
 ## 4. Frontend session
 
