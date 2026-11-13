@@ -44,7 +44,7 @@ keeps ARMHF libraries as harvested. See
 | `/run`, `/tmp`, `/var`, `/dev/shm` | tmpfs runtime state |
 | `/mnt/vendor` | Compatibility files shipped in the rootfs; no vendor partition mounted here |
 | `/usr/lib/baseos-gnu/bin` | GNU tools from stock for PortMaster ports. First on the frontend's PATH; BaseOS scripts keep BusyBox in `/usr/bin` |
-| `/usr/share/licenses` | Licences for the Vulkan driver (`build-vulkan.sh`) and for the Ubuntu 22.04 port libraries the stock image lacks (`debs/jammy-arm64.list`, `build-debs.sh`) |
+| `/usr/share/licenses` | Licences for the Vulkan driver (`build-vulkan.sh`) and for the Ubuntu port libraries the stock image lacks (`debs/packages.list`, `build-debs.sh`) |
 
 The root filesystem stays mounted read-only on non-initramfs boots; writable
 runtime state lives on tmpfs and `/data`. If `/sys/fs/ext4/mmcblk0p5/errors_count`
