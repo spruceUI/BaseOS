@@ -1,9 +1,10 @@
 name: device
 
 # Builds one target and uploads it to the "beta" prerelease. Called by
-# build-<target>.yml and build-all.yml. Inputs come from the committed prepared
-# bundle; an RGXX-images pattern in `image` prepares from a stock image instead,
-# which the native loader rejects.
+# build-<target>.yml and build-all.yml. Inputs are prepared from the StockMod
+# BASE image that manifest/prepared/<target>.json names, checked against that
+# manifest so the boot files match the ones the native loader was audited on;
+# the harvest comes from our manifest/harvest.list.
 
 on:
   workflow_call:
@@ -11,12 +12,6 @@ on:
       target:
         type: string
         required: true
-      image:
-        type: string
-        default: ""
-      images_tag:
-        type: string
-        default: images
       # Release version; empty means the build date (US Pacific)
       version:
         type: string
@@ -31,33 +26,35 @@ jobs:
     env:
       GH_TOKEN: ${{ github.token }}
       TARGET: ${{ inputs.target }}
-      IMAGE: ${{ inputs.image }}
     steps:
       - uses: actions/checkout@v4
 
-      - name: Restore committed inputs
-        if: inputs.image == ''
-        run: ./fetch-prepared.sh "$TARGET"
-
-      - name: Download stock image
-        if: inputs.image != ''
+      - name: Download StockMod image
         run: |
+          src() { python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))[sys.argv[2]][sys.argv[3]])' \
+            "manifest/prepared/$TARGET.json" "$@"; }
+          file="$(src source filename)"
+          case "$file" in
+            *-mod-v3.9.9.img) tag=20260605 ;;
+            *-mod-v4.0.0.img) tag=20260805 ;;
+            *) echo "no StockMod release known for $file" >&2; exit 1 ;;
+          esac
           sudo mkdir -p /mnt/img
           sudo chown "$USER" /mnt/img
-          gh release download "${{ inputs.images_tag }}" -R spruceUI/RGXX-images \
-            -p "$IMAGE.7z.001" -p "$IMAGE.7z.002" -D /mnt/img
+          gh release download "$tag" -R cbepx-me/Anbernic-H700-RG-xx-StockOS-Modification \
+            -p "${file%.img}.7z.*" -D /mnt/img
           cd /mnt/img
           7z x -y -bd ./*.7z.001 >/dev/null
-          rm -f ./*.7z.00*
-          find . -iname '*.img' -printf '%s %p\n'
+          rm -f ./*.7z.*
+          echo "$(src source sha256)  $file" | sha256sum -c -
 
       - name: Prepare
-        if: inputs.image != ''
         run: |
-          img="$(find /mnt/img -iname '*.img' | head -n 1)"
-          [ -n "$img" ] || { echo "no .img in the archive" >&2; exit 1; }
-          echo "Preparing $TARGET from $(basename "$img")"
+          img="/mnt/img/$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["source"]["filename"])' "manifest/prepared/$TARGET.json")"
           ./prepare-stock.sh "$TARGET" "$img"
+          rm -f "$img"
+          want="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["boot_prefix"]["sha256"])' "manifest/prepared/$TARGET.json")"
+          echo "$want  work/$TARGET/boot-prefix.img" | sha256sum -c -
 
       - run: ./verify-target.sh "$TARGET"
 
