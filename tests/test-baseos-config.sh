@@ -41,7 +41,7 @@ check_runtime() {
 	[ "$(cat "$TMP/run/hostname")" = "$1" ] || fail "runtime hostname: $1"
 	printf '127.0.0.1 localhost %s\n::1 localhost\n' "$1" > "$TMP/want"
 	cmp -s "$TMP/want" "$TMP/run/hosts" || fail "runtime hosts: $1"
-	printf 'hostname=%s\nmdns=%s\nheadphone_pop_fix=%s\n' "$1" "$2" "${3:-false}" > "$TMP/want"
+	printf 'hostname=%s\nmdns=%s\nheadphone_pop_fix=%s\nudev=%s\n' "$1" "$2" "${3:-false}" "${4:-false}" > "$TMP/want"
 	cmp -s "$TMP/want" "$TMP/run/baseos.conf" || fail "effective settings: $1/$2"
 	[ "$(grep '^hostname ' "$TMP/events")" = "hostname $1" ] \
 		|| fail "hostname must be applied exactly once"
@@ -71,6 +71,13 @@ for value in false '' True 1 yes 'true false' '$(touch config-executed)'; do
 	check_runtime rg34xxsp true false
 done
 [ ! -e "$TMP/config-executed" ] || fail "headphone setting executed shell code"
+
+printf 'udev=true\n' > "$TMP/config"
+apply "$TMP/config"
+check_runtime rg34xxsp true false true
+printf 'udev=true\nudev=yes\n' > "$TMP/config"
+apply "$TMP/config"
+check_runtime rg34xxsp true
 
 # Passwords are literal data, including #, = and shell metacharacters.
 printf '%s\r\n' 'ssh_password=  secret#=$(touch nope)  ' > "$TMP/config"

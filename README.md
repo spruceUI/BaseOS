@@ -94,6 +94,9 @@ mdns=true
 - **`headphone_pop_fix`**: set `true` to try the headphone exit-pop fix. It is
   off by default because it can use more battery while awake. The speaker pop fix is
   always enabled. See [audio support](docs/05-runtime-power-network.md#speaker-and-headphone-pop-repair).
+- **`udev`**: set `true` to start udev for input devices. Off by default. Some
+  PortMaster ports need it: the 32-bit SDL2 finds no gamepad without it, and
+  ports miss input devices that appear after they start.
 
 Omitted settings use their defaults. Lines starting with `#` are comments, but
 a `#` within an SSH password is part of the password.

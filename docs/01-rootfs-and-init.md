@@ -141,10 +141,11 @@ getty. It invokes `rcK` on shutdown.
    a 2 s delay so they do not contend with the frontend's first frame.
 
 Services requiring a network do not block frontend startup. devtmpfs provides
-device nodes. udevd runs with input rules only: it labels input devices for SDL
-(the 32-bit SDL2 finds no gamepad without that) and announces devices that
-appear later, such as gptokeyb's virtual keyboard. It loads no drivers and has
-no hardware database. Bluetooth starts D-Bus on demand.
+device nodes. With `udev=true` in `baseos.conf`, udevd runs with input rules
+only: it labels input devices for SDL (the 32-bit SDL2 finds no gamepad without
+that) and announces devices that appear later, such as gptokeyb's virtual
+keyboard. It loads no drivers and has no hardware database. Bluetooth starts
+D-Bus on demand.
 
 ## 4. Frontend session
 
