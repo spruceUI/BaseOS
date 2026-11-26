@@ -34,6 +34,7 @@ jobs:
           src() { python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))[sys.argv[2]][sys.argv[3]])' \
             "manifest/prepared/$TARGET.json" "$@"; }
           file="$(src source filename)"
+          sum="$(src source sha256)"
           case "$file" in
             *-mod-v3.9.9.img) tag=20260605 ;;
             *-mod-v4.0.0.img) tag=20260805 ;;
@@ -46,7 +47,7 @@ jobs:
           cd /mnt/img
           7z x -y -bd ./*.7z.001 >/dev/null
           rm -f ./*.7z.*
-          echo "$(src source sha256)  $file" | sha256sum -c -
+          echo "$sum  $file" | sha256sum -c -
 
       - name: Prepare
         run: |
