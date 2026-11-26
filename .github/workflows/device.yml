@@ -1,8 +1,9 @@
 name: device
 
-# Builds one target from its spruceUI/RGXX-images stock image and uploads the
-# result to the "beta" prerelease. Called by build-<target>.yml and build-all.yml.
-# An empty image pattern restores the target's inputs from the committed bundle.
+# Builds one target and uploads it to the "beta" prerelease. Called by
+# build-<target>.yml and build-all.yml. Inputs come from the committed prepared
+# bundle; an RGXX-images pattern in `image` prepares from a stock image instead,
+# which the native loader rejects.
 
 on:
   workflow_call:
@@ -141,6 +142,34 @@ jobs:
           [ -n "$v" ] || v="$(TZ=America/Los_Angeles date +%Y.%m.%d)"
           echo "BASEOS_VERSION=$v" >> "$GITHUB_ENV"
           echo "Building $v"
+
+      - uses: actions/cache@v4
+        with:
+          path: work/h700-loader/mainline/u-boot-v2026.10.tar.gz
+          key: u-boot-v2026.10
+
+      # build-all.sh builds the native loader: clang, the rustup ld.lld, a
+      # Python with capstone and unicorn, and the SPL toolchain container.
+      - name: Native loader tools
+        run: |
+          mkdir -p work/h700-loader/mainline
+          a=work/h700-loader/mainline/u-boot-v2026.10.tar.gz
+          [ -f "$a" ] || curl -fL -o "$a" https://github.com/u-boot/u-boot/archive/refs/tags/v2026.10.tar.gz
+          echo "f943a88389c8fd70a6b0d061a88267465e143c7ca6ea2b75837ab20f5b60c739  $a" | sha256sum -c -
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq clang
+          command -v rustup >/dev/null || curl -fsSL https://sh.rustup.rs | sh -s -- -y --profile minimal
+          ls ~/.rustup/toolchains/*/lib/rustlib/*/bin/gcc-ld/ld.lld
+          python3 -m venv work/native-venv
+          work/native-venv/bin/pip install -q capstone unicorn
+          echo "BASEOS_NATIVE_PYTHON=$PWD/work/native-venv/bin/python" >> "$GITHUB_ENV"
+          docker run -d --name baseos-h700-mainline --platform linux/arm64 \
+            ghcr.io/loveretro/h700-toolchain@sha256:bf5d8f9f5442cad789aa77176bc059ec823caefa3258bf30780eee681c777119 \
+            sleep infinity
+          docker exec baseos-h700-mainline sh -euc '
+            apt-get update -qq
+            apt-get install -y -qq bc bison flex libssl-dev make python3 >/dev/null
+            aarch64-linux-gnu-gcc --version | head -n 1'
 
       - run: ./build-all.sh "$TARGET"
 

@@ -33,19 +33,18 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { target: rg28xx,     image: "RG28XX-V*" }
-          - { target: rg34xx,     image: "RG34XX-V*" }
-          - { target: rg34xxsp,   image: "RG34XXSP-V*" }
-          - { target: rg35xxplus, image: "RG35XX+-P-V*" }
-          - { target: rg35xxh,    image: "RG35XXH-V*" }
-          - { target: rg35xxpro,  image: "RG35XXPRO-V*" }
-          - { target: rg35xxsp,   image: "RG35XXSP-V*" }
-          - { target: rg40xxh,    image: "RG40XXH-V*" }
-          - { target: rg40xxv,    image: "RG40XXV-V*" }
-          - { target: rgcubexx,   image: "RGCUBEXX-V*" }
-          - { target: rgsp,       image: "RGSP-V*" }
+          - { target: rg28xx }
+          - { target: rg34xx }
+          - { target: rg34xxsp }
+          - { target: rg35xxplus }
+          - { target: rg35xxh }
+          - { target: rg35xxpro }
+          - { target: rg35xxsp }
+          - { target: rg40xxh }
+          - { target: rg40xxv }
+          - { target: rgcubexx }
+          - { target: rgsp }
     uses: ./.github/workflows/device.yml
     with:
       target: ${{ matrix.target }}
-      image: ${{ matrix.image }}
       version: ${{ needs.reset.outputs.version }}

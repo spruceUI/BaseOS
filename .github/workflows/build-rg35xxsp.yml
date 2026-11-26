@@ -11,4 +11,3 @@ jobs:
     uses: ./.github/workflows/device.yml
     with:
       target: rg35xxsp
-      image: "RG35XXSP-V*"

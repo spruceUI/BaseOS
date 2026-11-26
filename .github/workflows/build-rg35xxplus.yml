@@ -11,4 +11,3 @@ jobs:
     uses: ./.github/workflows/device.yml
     with:
       target: rg35xxplus
-      image: "RG35XX+-P-V*"
