@@ -166,10 +166,16 @@ jobs:
             sleep infinity
           docker exec baseos-h700-mainline sh -euc '
             apt-get update -qq
-            apt-get install -y -qq bc bison flex libssl-dev make python3 >/dev/null
+            apt-get install -y -qq bc bison flex libgnutls28-dev libssl-dev make python3 uuid-dev >/dev/null
             aarch64-linux-gnu-gcc --version | head -n 1'
 
       - run: ./build-all.sh "$TARGET"
+
+      - name: SPL build logs
+        if: failure()
+        run: |
+          docker exec baseos-h700-mainline sh -c \
+            'for f in /tmp/baseos-release-spl-*/configure.log /tmp/baseos-release-spl-*/build.log; do echo "== $f"; tail -n 60 "$f"; done' || true
 
       - name: Upload to beta
         run: |
