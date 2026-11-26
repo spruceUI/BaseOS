@@ -43,7 +43,7 @@ keeps ARMHF libraries as harvested. See
 | `/mnt/system` | Temporary read-only TF1 mount for configuration and update discovery when needed |
 | `/run`, `/tmp`, `/var`, `/dev/shm` | tmpfs runtime state |
 | `/mnt/vendor` | Compatibility files shipped in the rootfs; no vendor partition mounted here |
-| `/usr/lib/baseos-gnu/bin` | GNU tools from stock for PortMaster ports. First on the frontend's PATH; BaseOS scripts keep BusyBox in `/usr/bin` |
+| `/usr/lib/baseos-gnu/bin` | GNU tools from stock for PortMaster ports. On no PATH by default: a frontend adds it for the ports it runs. BaseOS scripts keep BusyBox in `/usr/bin` |
 | `/usr/share/licenses` | Licences for the Vulkan driver (`build-vulkan.sh`) and for the Ubuntu port libraries the stock image lacks (`debs/packages.list`, `build-debs.sh`) |
 
 The root filesystem stays mounted read-only on non-initramfs boots; writable
